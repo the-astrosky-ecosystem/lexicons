@@ -1,0 +1,12 @@
+{
+  "$type": "com.atproto.lexicon.schema",
+  "lexicon": 1,
+  "id": "eco.astrosky.test",
+  "defs": {
+    "result": {
+      "type": "string",
+      "description": "Whether or not the test passed",
+      "maxLength": 48
+    }
+  }
+}
