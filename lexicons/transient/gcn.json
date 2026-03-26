@@ -30,7 +30,7 @@
           },
           "eventID": {
             "type": "integer",
-            "description": "NASA Kafka stream event ID (sometimes referred to as 'offset' in their documentation.",
+            "description": "NASA Kafka stream event ID, sometimes referred to as 'offset' in their documentation.",
             "minimum": 0
           },
           "data": {
