@@ -3,10 +3,21 @@
   "lexicon": 1,
   "id": "eco.astrosky.test",
   "defs": {
-    "result": {
-      "type": "string",
-      "description": "Whether or not the test passed",
-      "maxLength": 48
+    "main": {
+      "type": "record",
+      "description": "Simple test schema by The Astrosky Ecosystem. Sorry for making it! Contains a single string field.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["result"],
+        "properties": {
+          "result": {
+            "type": "string",
+            "description": "Short string stating whether or not the test passed.",
+            "maxLength": 48
+          }
+        }
+      }
     }
   }
 }
