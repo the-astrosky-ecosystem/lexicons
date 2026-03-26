@@ -1,0 +1,44 @@
+{
+  "$type": "com.atproto.lexicon.schema",
+  "lexicon": 1,
+  "id": "eco.astrosky.transient.gcn",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Repost of a NASA General Coordinates Network event on the ATProtocol. For the full NASA GCN schema definition, see https://github.com/nasa-gcn/gcn-schema",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["topic", "eventID", "data"],
+        "properties": {
+          "topic": {
+            "type": "string",
+            "description": "GCN topic for the event.",
+            "maxLength": 128,
+            "knownValues": [
+              "gcn.circulars",
+              "gcn.notices.chime.frb",
+              "gcn.notices.dsa110.frb",
+              "gcn.notices.einstein_probe.wxt.alert",
+              "gcn.notices.icecube.lvk_nu_track_search",
+              "gcn.notices.icecube.gold_bronze_track_alerts",
+              "igwn.gwalert",
+              "gcn.notices.superk.sn_alert",
+              "gcn.notices.swift.bat.guano",
+              "gcn.heartbeat"
+            ]
+          },
+          "eventID": {
+            "type": "integer",
+            "description": "NASA Kafka stream event ID (sometimes referred to as 'offset' in their documentation.",
+            "minimum": 0
+          },
+          "data": {
+            "type": "string",
+            "description": "Raw string-encoded JSON of the GCN event, which is in NASA GCN's JSON schema format. May be very large. Some exceptionally large fields (such as the localization image) should be removed before upload, and may be added separately as blobs in a future version of this schema."
+          }
+        }
+      }
+    }
+  }
+}
