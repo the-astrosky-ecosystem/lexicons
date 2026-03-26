@@ -9,7 +9,7 @@
       "key": "tid",
       "record": {
         "type": "object",
-        "required": ["topic", "eventID", "value"],
+        "required": ["topic", "eventID", "data"],
         "properties": {
           "topic": {
             "type": "string",
@@ -33,7 +33,7 @@
             "description": "NASA Kafka stream event ID (sometimes referred to as 'offset' in their documentation.",
             "minimum": 0
           },
-          "value": {
+          "data": {
             "type": "string",
             "description": "Raw string-encoded JSON of the GCN event, which is in NASA GCN's JSON schema format. May be very large. Some exceptionally large fields (such as the localization image) should be removed before upload, and may be added separately as blobs in a future version of this schema."
           }
