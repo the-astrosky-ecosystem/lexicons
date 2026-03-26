@@ -6,6 +6,17 @@ import shutil
 import json
 
 
+# Todo some are really nasty and are skipped for now
+SKIPPED_SCHEMAS = [
+    "icecube",
+    "svom",
+    "dsa110",
+    "einstein_probe",
+    "burstcube",
+    "heasarc",  # Has bad name
+]
+
+
 def update():
     print("Starting GCN lexicon update.")
     schema_folder = _fetch_schema()
@@ -26,7 +37,7 @@ def convert_gcn_schema_to_atproto_lexicon(file):
 
     # Add new keys
     schema["lexicon"] = 1  # Todo need robust versioning!
-    schema["type"] = "com.atproto.lexicon.schema"
+    schema["$type"] = "com.atproto.lexicon.schema"
 
     # Rename certain keys
     schema["id"] = "eco.astrosky.transient.gcn." + schema.pop("$id").split("/gcn/")[
@@ -34,20 +45,83 @@ def convert_gcn_schema_to_atproto_lexicon(file):
     ].replace(".schema.json", "").replace("/", ".")
 
     # Grab a description for the schema
-    description = schema.pop("title", "Undescribed record")
+    description = schema.pop("title", "Untitled record type")
     if "description" in schema:
         description = f"{description}: {schema.pop('description')}"
+    schema["description"] = (
+        description
+        + " N.B. This schema is adapted from a schema provided by the NASA GCN at https://github.com/nasa-gcn/gcn-schema"
+    )
+
+    # Start recording any non-main properties (i.e. other defs)
+    other_schema_defs = dict()
 
     # Look for properties
     if "properties" in schema:
-        properties = schema.pop("properties")
+        properties: dict[str, dict] = schema.pop("properties")
+
+        if "allOf" in schema:
+            properties.update()
+
+    # Alternatively, some schemas just have a single enum (cry)
     elif "enum" in schema:
         properties = dict(value=dict(type="string", enum=schema.pop("enum")))
+
+    # Some schemas only contain refs to others
+    elif "allOf" in schema:
+        properties = schema.pop("allOf")
+
+    # Otherwise, raise error
     else:
         raise RuntimeError(f"Schema file {file} not supported!")
 
-    # Replace all properties with defs
+    # Remove any "schema true" properties
+    properties = {k: v for k, v in properties.items() if k != "$schema"}
 
+    # Handle any properties that need converting
+    print(file)
+    for key, prop in properties.items():
+        description = prop.get("description", "")
+
+        # Replace 'oneOf' or 'anyOf' options with string
+        # Todo this works because there are only two, both of which are just either floats or length-two float arrays. Improve this, e.g. with a specific new schema for something that's either an array or not!
+        if "oneOf" in prop:
+            prop = prop["oneOf"][0]  # Todo fix
+        if "anyOf" in prop:
+            prop = prop["anyOf"][0]  # Todo fix
+
+        # "ref" types handling
+        if "$ref" in prop and "type" not in prop:
+            prop["type"] = "ref"
+            prop["ref"] = prop.pop("$ref").replace(
+                ".schema.json", ""
+            )  # Todo refs need to not be relative
+
+        # String enums need converting once again
+        if "enum" in prop and "type" not in prop:
+            prop["type"] = "string"
+
+        # Floating point numbers not allowed in ATProtocol
+        string_flag = False
+        if prop["type"] == "number":
+            prop["type"] = "string"
+            string_flag = True
+        if prop["type"] == "array":
+            if "items" in prop:
+                for item in prop["items"]:
+                    if item["type"] == "number":
+                        item["type"] = "string"
+                        string_flag = True
+
+        if string_flag:
+            prop["description"] = (
+                description
+                + " (WARNING: string representation of floating point number)"
+            ).strip()
+
+        properties[key] = prop
+
+    # Replace all properties with defs
     schema["defs"] = dict(
         main=dict(
             type="record",
@@ -57,7 +131,8 @@ def convert_gcn_schema_to_atproto_lexicon(file):
                 # required=?  # Todo: required key
                 properties=properties,
             ),
-        )
+        ),
+        **other_schema_defs,
     )
 
     # Remove out of schema keys we don't need
@@ -113,12 +188,20 @@ def _clean_schema_tree(folder):
 
 
 def _convert_all_files(folder):
-    files = list(folder.glob("**/*.json"))
+    files = sorted(list(folder.glob("**/*.json")))
     print(f"Converting {len(files)} files to ATProto Lexicon format")
     for file in files:
+        if any([x in str(file) for x in SKIPPED_SCHEMAS]):
+            print(f"Skipping {file.parent}/{file.name}!")
+            file.unlink()
+            continue
         convert_gcn_schema_to_atproto_lexicon(file)
 
 
 def _move_gcn_files(folder):
-    shutil.rmtree(LEXICON_DIRECTORY / "transient/gcn")
+    old_folder = LEXICON_DIRECTORY / "transient/gcn"
+    if old_folder.exists():
+        shutil.rmtree(old_folder)
+
+    (LEXICON_DIRECTORY / "transient").mkdir(exist_ok=True, parents=True)
     shutil.move(folder, LEXICON_DIRECTORY / "transient")
