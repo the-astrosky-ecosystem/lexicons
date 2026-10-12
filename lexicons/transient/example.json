@@ -1,0 +1,43 @@
+{
+  "$type": "com.atproto.lexicon.schema",
+  "lexicon": 1,
+  "id": "eco.astrosky.transient.example",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Example of an astronomy transient-type record. Created for demo purposes - does not contain real data!",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["observatory", "time", "magnitude"],
+        "properties": {
+          "observatory": {
+            "type": "string",
+            "description": "Observatory responsible for the observation.",
+            "maxLength": 300
+          },
+          "time": {
+            "type": "string",
+            "format": "datetime",
+            "description": "UTC timestamp of observation."
+          },
+          "ra": {
+            "type": "string",
+            "description": "Right ascension of the source, in string-encoded degrees.",
+            "maxLength": 30
+          },
+          "dec": {
+            "type": "string",
+            "description": "Declination of the source, in string-encoded degrees.",
+            "maxLength": 30
+          },
+          "magnitude": {
+            "type": "string",
+            "description": "Apparent magnitude of the observation.",
+            "maxLength": 30
+          }
+        }
+      }
+    }
+  }
+}
