@@ -13,7 +13,7 @@
         "properties": {
           "result": {
             "type": "string",
-            "description": "Short string stating whether or not the test passed.",
+            "description": "Short string stating whether or not the test passed!",
             "maxLength": 48
           }
         }

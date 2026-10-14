@@ -35,6 +35,9 @@
             "type": "string",
             "description": "Apparent magnitude of the observation.",
             "maxLength": 30
+          },
+          "eventID": {
+            "type": "integer"
           }
         }
       }

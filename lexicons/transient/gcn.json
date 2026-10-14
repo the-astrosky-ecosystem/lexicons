@@ -34,8 +34,8 @@
             "minimum": 0
           },
           "data": {
-            "type": "string",
-            "description": "Raw string-encoded JSON of the GCN event, which is in NASA GCN's JSON schema format. May be very large. Some exceptionally large fields (such as the localization image) should be removed before upload, and may be added separately as blobs in a future version of this schema."
+            "type": "object",
+            "description": "JSON of the GCN event, which is in NASA GCN's JSON schema format. Some exceptionally large fields (such as the localization image) should be removed before upload, or preferably should be added separately as blobs."
           },
           "createdAt": {
             "type": "string",
