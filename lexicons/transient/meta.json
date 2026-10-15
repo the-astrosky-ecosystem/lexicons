@@ -1,0 +1,42 @@
+{
+  "$type": "com.atproto.lexicon.schema",
+  "lexicon": 1,
+  "id": "eco.astrosky.transient.meta",
+  "defs": {
+    "main": {
+      "type": "record",
+      "description": "Metadata record providing additional context or data on an existing published astronomical transient.",
+      "key": "tid",
+      "record": {
+        "type": "object",
+        "required": ["title", "eventRef", "data", "createdAt"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Title of the provided metadata.",
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "description": "Optional additional context about provided metadata. This field can be up to 2000 characters, but try to keep this concise.",
+            "maxLength": 2000
+          },
+          "eventRef": {
+            "ref": "com.atproto.repo.strongRef",
+            "type": "ref",
+            "description": "Strong reference to the event that this metadata relates to."
+          },
+          "data": {
+            "type": "object",
+            "description": "Arbitrary JSON object containing provided metadata or measurements about an event. Currently schema-free, but try to keep these entries self-consistent with your own work, while also using common property names (such as 'ra' or 'dec'.)"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "datetime",
+            "description": "Client-declared timestamp when this metadata was originally created."
+          }
+        }
+      }
+    }
+  }
+}
